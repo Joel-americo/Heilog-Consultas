@@ -3,37 +3,37 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>HEILOG - Consulta Rápida</title>
+  <title>HEILOG - Consulta de Carregamento</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
   <style>
     :root { --heineken-green: #00904A; --dark-bg: #174017; }
     body { font-family: 'Roboto', sans-serif; background-color: var(--dark-bg); color: #f3f4f6; }
     .font-title { font-family: 'Oswald', sans-serif; }
-    .card { background-color: rgba(0, 0, 0, 0.3); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
+    .card { background-color: rgba(0, 0, 0, 0.4); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
     .form-input { background-color: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2); color: white; }
-    .form-input:focus { border-color: var(--heineken-green); outline: none; }
     .btn-green { background-color: var(--heineken-green); color: white; font-weight: bold; }
     .address-box { background: rgba(255,255,255,0.05); border-left: 4px solid var(--heineken-green); padding: 12px; margin-top: 12px; border-radius: 4px; }
+    .custom-scroll::-webkit-scrollbar { width: 6px; }
+    .custom-scroll::-webkit-scrollbar-thumb { background: var(--heineken-green); border-radius: 10px; }
     @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     .animate-fade-in-up { animation: fadeInUp 0.3s ease-out forwards; }
   </style>
 </head>
 <body class="antialiased min-h-screen flex flex-col items-center p-4 sm:p-8">
 
-  <div class="w-full max-w-2xl card rounded-2xl p-6 sm:p-8 shadow-2xl mt-10">
+  <div class="w-full max-w-2xl card rounded-2xl p-6 sm:p-8 shadow-2xl mt-10 z-10">
     <div class="text-center mb-8">
       <h1 class="font-title text-4xl font-bold text-white tracking-wider">
         HEILOG <span class="text-green-400 cursor-default select-none" ondblclick="abrirAdmin()">CONSULTA</span>
       </h1>
-      <p class="text-gray-300 mt-2">Dados de Carregamento e Descarga</p>
-      <div id="status" class="text-xs text-yellow-300 mt-2">Sincronizando base...</div>
+      <p class="text-gray-300 mt-2">Saiba onde carregar ou descarregar</p>
+      <div id="status" class="text-xs text-yellow-300 mt-2 font-bold uppercase">Sincronizando...</div>
     </div>
 
     <div class="space-y-4">
-      <label class="block text-sm font-bold text-gray-400 uppercase tracking-wide">Buscar por DT ou Produto</label>
       <div class="flex gap-3">
-        <input type="text" id="searchInput" class="form-input w-full p-4 rounded-xl text-lg" placeholder="Ex: 4500123456">
+        <input type="text" id="searchInput" class="form-input w-full p-4 rounded-xl text-lg outline-none" placeholder="Digite a DT ou Produto...">
         <button id="searchBtn" class="btn-green px-8 rounded-xl text-lg transition-all hover:bg-green-700">Buscar</button>
       </div>
       
@@ -48,72 +48,118 @@
     <div id="results" class="mt-8 space-y-4"></div>
   </div>
 
-  <script>
-    // Coordenadas Exatas (Jacareí e Caçapava) para evitar erros do Maps
-    const LINK_JACAREI = "https://www.google.com/maps?q=-23.2872,-45.9812";
-    const LINK_CACAPAVA = "https://www.google.com/maps?q=-23.1393,-45.7523";
+  <div id="adminModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex justify-center items-center p-4">
+    <div class="bg-[#174017] border border-white/20 rounded-2xl p-6 w-full max-w-sm shadow-2xl flex flex-col max-h-[90vh]">
+      <h2 class="text-white font-title text-2xl tracking-wider mb-2 border-b border-white/10 pb-2">⚙️ Ajustar Destinos</h2>
+      <div id="adminSettingsList" class="flex-1 overflow-y-auto space-y-2 pr-2 custom-scroll mb-4"></div>
+      <button onclick="salvarConfig()" class="btn-green w-full py-3 rounded-lg text-sm uppercase">Salvar Configurações</button>
+      <button onclick="fecharAdmin()" class="mt-2 text-gray-400 text-xs uppercase">Cancelar</button>
+    </div>
+  </div>
 
+  <div id="descargaModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex justify-center items-center p-4">
+    <div class="bg-[#174017] border border-white/20 rounded-2xl p-6 w-full max-w-lg shadow-2xl flex flex-col max-h-[85vh]">
+      <h2 class="text-white font-title text-2xl tracking-wider mb-4 border-b border-white/10 pb-2">Escolha o Item</h2>
+      <div id="itensDescarga" class="grid grid-cols-1 sm:grid-cols-2 gap-2 overflow-y-auto custom-scroll pr-2"></div>
+      <button onclick="fecharMenuDescarga()" class="mt-4 text-gray-400 text-xs uppercase">Voltar</button>
+    </div>
+  </div>
+
+  <script>
     const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSHLJspPB5rUhpKWTUFGrtMeksd24eu1-I_l5S2qkhgFsie6cn1hITIUmr3k-ZuL4stm1x8MT0mC30s/pub?output=csv';
+    const LINK_JACAREI = "https://www.google.com/maps?q=-23.287114,-45.981084";
+    const LINK_CACAPAVA = "https://www.google.com/maps?q=-23.147778,-45.719722";
+
+    const itens = ["Insumo", "Caixa Verde", "Caixa Amarela", "Barril 50L", "Barril 30L", "Paletes PBR1", "Paletes PBR2", "Garrafa 250ml", "Garrafa 330 (Praya)", "Garrafa 330 (Heineken)", "Garrafa 600"];
     let database = [];
 
     async function carregarPlanilha() {
+      const status = document.getElementById('status');
       try {
-        const response = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(CSV_URL)}&t=${Date.now()}`);
+        const response = await fetch(`${CSV_URL}&t=${Date.now()}`);
         const csvText = await response.text();
         const lines = csvText.trim().split(/\r?\n/);
-        database = lines.slice(1).map(line => line.split(',').map(v => v.replace(/"/g, '').trim()));
-        document.getElementById('status').textContent = 'Base Online';
-        document.getElementById('status').className = 'text-xs text-green-400 mt-2 font-bold';
+        database = lines.slice(1).map(line => {
+          const regex = /("([^"]|"")*"|[^,]*)(,|$)/g;
+          return line.match(regex).map(m => m.replace(/,$/, '').replace(/"/g, '').trim());
+        });
+        status.textContent = 'Base Sincronizada';
+        status.className = 'text-xs text-green-400 mt-2 font-bold';
       } catch (e) {
-        document.getElementById('status').textContent = 'Erro na conexão';
+        status.textContent = 'Erro ao conectar';
       }
+    }
+
+    function abrirAdmin() {
+      const list = document.getElementById('adminSettingsList');
+      list.innerHTML = itens.map((item, i) => {
+        const salvo = localStorage.getItem('dest_' + item) || 'FÁBRICA';
+        return `<div class="bg-black/20 p-2 rounded-lg"><label class="text-[10px] text-gray-400 uppercase">${item}</label><select id="adm_${i}" class="form-input w-full p-1 rounded text-sm"><option value="FÁBRICA" ${salvo === 'FÁBRICA' ? 'selected' : ''}>📍 FÁBRICA</option><option value="LUSITANA" ${salvo === 'LUSITANA' ? 'selected' : ''}>📍 LUSITANA</option></select></div>`;
+      }).join('');
+      document.getElementById('adminModal').classList.remove('hidden');
+    }
+
+    function fecharAdmin() { document.getElementById('adminModal').classList.add('hidden'); }
+    function salvarConfig() {
+      itens.forEach((item, i) => localStorage.setItem('dest_' + item, document.getElementById('adm_'+i).value));
+      fecharAdmin();
+      alert('Configurações salvas!');
+    }
+
+    function abrirMenuDescarga() {
+      const list = document.getElementById('itensDescarga');
+      list.innerHTML = itens.map(item => `<button onclick="selecionarDescarga('${item}')" class="bg-white/10 p-3 rounded-lg text-left text-sm hover:bg-white/20 transition-all font-bold">${item}</button>`).join('');
+      document.getElementById('descargaModal').classList.remove('hidden');
+    }
+    function fecharMenuDescarga() { document.getElementById('descargaModal').classList.add('hidden'); }
+
+    function selecionarDescarga(item) {
+      fecharMenuDescarga();
+      const dest = localStorage.getItem('dest_' + item) || 'FÁBRICA';
+      const isJacarei = dest === 'FÁBRICA';
+      exibirResultado(item, "Direta", "Sem DT", "---", isJacarei, "---", "---");
     }
 
     function buscarDestino() {
       const q = document.getElementById('searchInput').value.trim().toLowerCase();
-      const container = document.getElementById('results');
       if (!q) return;
       const res = database.filter(row => row.some(c => c && c.toLowerCase().includes(q)));
-      
+      const container = document.getElementById('results');
       if (res.length === 0) {
-        container.innerHTML = `<div class="p-4 bg-red-900/40 border border-red-500 rounded-xl text-red-200 uppercase font-bold text-center">Nenhuma DT localizada</div>`;
+        container.innerHTML = `<div class="p-4 bg-red-900/40 border border-red-500 rounded-xl text-red-200 text-center">DT não encontrada</div>`;
         return;
       }
-
       container.innerHTML = res.map(row => {
-        const local = (row[6] || '').toUpperCase();
-        const isJacarei = local.includes('FÁBRICA') || local.includes('JACAREÍ');
-        const link = isJacarei ? LINK_JACAREI : LINK_CACAPAVA;
-        const endereco = isJacarei ? '📍 Portaria Heineken Jacareí' : '📍 Portaria Lusitana Caçapava';
-
-        return `
-        <div class="bg-black/40 border border-white/10 rounded-xl p-5 space-y-4 animate-fade-in-up">
-          <div class="flex justify-between items-start border-b border-white/10 pb-3">
-            <div>
-              <div class="text-xs text-gray-400 font-bold uppercase">Depósito de Destino</div>
-              <div class="text-2xl font-black text-green-400">${row[6]}</div>
-              <div class="address-box flex flex-col gap-2">
-                <span class="text-sm text-gray-200">${endereco}</span>
-                <a href="${link}" target="_blank" class="text-blue-400 hover:underline font-bold text-sm">Abrir Localização Exata no Maps</a>
-              </div>
-            </div>
-            <div class="text-right">
-              <div class="text-xs text-gray-400 font-bold uppercase">DT</div>
-              <div class="text-xl font-bold">${row[0]}</div>
-            </div>
-          </div>
-          
-          <div class="grid grid-cols-2 gap-4">
-            <div class="col-span-2"><div class="text-xs text-gray-400 uppercase">Cliente</div><div class="font-bold">${row[2]}</div></div>
-            <div class="col-span-1"><div class="text-xs text-gray-400 uppercase">Quantidade</div><div class="text-lg font-bold text-green-300">${row[5]} Paletes</div></div>
-            <div class="col-span-1"><div class="text-xs text-gray-400 uppercase">Data</div><div class="text-lg font-bold">${row[8]}</div></div>
-            <div class="col-span-2 bg-white/5 p-3 rounded-lg"><div class="text-xs text-gray-400 uppercase">Horário de Agenda</div><div class="text-2xl font-black text-white">${row[11]}</div></div>
-          </div>
-        </div>`;
+        const isJacarei = (row[6] || '').toUpperCase().includes('FÁBRICA');
+        return exibirCardHTML(row[4], row[2], row[0], row[5], isJacarei, row[8], row[11]);
       }).join('');
     }
 
-    document.getElementById('searchBtn').addEventListener('click', buscarDestino);
+    function exibirResultado(nome, cliente, dt, plt, isJacarei, data, agenda) {
+      document.getElementById('results').innerHTML = exibirCardHTML(nome, cliente, dt, plt, isJacarei, data, agenda);
+    }
+
+    function exibirCardHTML(nome, cliente, dt, plt, isJacarei, data, agenda) {
+      const link = isJacarei ? LINK_JACAREI : LINK_CACAPAVA;
+      const local = isJacarei ? 'FÁBRICA (JACAREÍ)' : 'LUSITANA (CAÇAPAVA)';
+      const end = isJacarei ? 'Av. Pres. Humberto de Alencar Castelo Branco, 2911' : 'Rua Vereador Geraldo Nogueira da Silva, 5111';
+      return `<div class="bg-black/50 border border-white/10 rounded-xl p-5 space-y-4 animate-fade-in-up shadow-2xl">
+        <div class="flex justify-between items-start border-b border-white/10 pb-3">
+          <div><div class="text-[10px] text-gray-400 uppercase font-bold">Destino</div><div class="text-xl font-black text-green-400">${local}</div>
+          <div class="address-box text-xs text-gray-300"><span>${end}</span><br><a href="${link}" target="_blank" class="text-blue-400 font-bold underline">ABRIR NO GOOGLE MAPS</a></div></div>
+          <div class="text-right"><div class="text-[10px] text-gray-400 uppercase font-bold">DT</div><div class="text-lg font-bold text-white">${dt}</div></div>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div class="col-span-2"><div class="text-[10px] text-gray-400 uppercase">Cliente / Produto</div><div class="font-bold text-gray-200 text-sm">${cliente} / ${nome}</div></div>
+          <div class="col-span-1"><div class="text-[10px] text-gray-400 uppercase">Quantidade</div><div class="text-lg font-black text-white">${plt} PLTS</div></div>
+          <div class="col-span-1 text-right"><div class="text-[10px] text-gray-400 uppercase">Data</div><div class="text-lg font-bold text-gray-200">${data}</div></div>
+          <div class="col-span-2 bg-green-900/20 p-3 rounded-lg border border-green-500/30 text-center"><div class="text-[10px] text-green-400 uppercase font-bold">Horário de Agenda</div><div class="text-2xl font-black text-white">${agenda}</div></div>
+        </div>
+      </div>`;
+    }
+
+    document.getElementById('searchBtn').onclick = buscarDestino;
+    document.getElementById('searchInput').onkeypress = (e) => { if (e.key === 'Enter') buscarDestino(); };
     window.onload = carregarPlanilha;
   </script>
 </body>
