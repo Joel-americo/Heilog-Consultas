@@ -88,34 +88,29 @@
   </div>
 
   <script>
-    // Link direto do CSV - Sem Proxy!
     const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSHLJspPB5rUhpKWTUFGrtMeksd24eu1-I_l5S2qkhgFsie6cn1hITIUmr3k-ZuL4stm1x8MT0mC30s/pub?output=csv';
-    const LINK_JACAREI = "https://maps.app.goo.gl/wE3kF9B2bQ9Mv2mN7"; // Coord exata Fábrica
-    const LINK_CACAPAVA = "https://maps.app.goo.gl/3QyRkPqQeHj5Vz7aA"; // Coord exata Lusitana
+    
+    // LINKS DIRETOS DO GOOGLE MAPS (Raiz/Inquebráveis)
+    const LINK_JACAREI = "https://www.google.com/maps/search/?api=1&query=Heineken+Cervejaria+Jacareí+Av+Pres+Humberto+Castelo+Branco+2911";
+    const LINK_CACAPAVA = "https://www.google.com/maps/search/?api=1&query=Rua+Vereador+Geraldo+Nogueira+da+Silva+5111+Cacapava+SP";
 
     const itens = ["Insumo", "Caixa Verde", "Caixa Amarela", "Barril 50L", "Barril 30L", "Paletes PBR1", "Paletes PBR2", "Garrafa 250ml", "Garrafa 330 (Praya)", "Garrafa 330 (Heineken)", "Garrafa 600"];
     let database = [];
 
-    // Conexão direta oficial com o Google Sheets
     async function carregarPlanilha() {
       const status = document.getElementById('status');
       try {
         const response = await fetch(`${CSV_URL}&t=${Date.now()}`);
-        if (!response.ok) throw new Error('Falha ao acessar a planilha.');
-        
         const csvText = await response.text();
         const lines = csvText.trim().split(/\r?\n/);
-        
         database = lines.slice(1).map(line => {
           const regex = /("([^"]|"")*"|[^,]*)(,|$)/g;
           return line.match(regex).map(m => m.replace(/,$/, '').replace(/"/g, '').trim());
         });
-        
         status.textContent = 'Base Sincronizada';
         status.className = 'text-xs text-green-400 mt-2 font-bold';
       } catch (e) {
-        status.textContent = 'Erro ao conectar. Tente recarregar.';
-        status.className = 'text-xs text-red-500 mt-2 font-bold';
+        status.textContent = 'Erro ao conectar';
       }
     }
 
@@ -155,11 +150,11 @@
       const res = database.filter(row => row.some(c => c && c.toLowerCase().includes(q)));
       const container = document.getElementById('results');
       if (res.length === 0) {
-        container.innerHTML = `<div class="p-4 bg-red-900/40 border border-red-500 rounded-xl text-red-200 text-center font-bold uppercase">DT não encontrada</div>`;
+        container.innerHTML = `<div class="p-4 bg-red-900/40 border border-red-500 rounded-xl text-red-200 text-center">DT não encontrada</div>`;
         return;
       }
       container.innerHTML = res.map(row => {
-        const isJacarei = (row[6] || '').toUpperCase().includes('FÁBRICA') || (row[6] || '').toUpperCase().includes('JACAREÍ');
+        const isJacarei = (row[6] || '').toUpperCase().includes('FÁBRICA');
         return exibirCardHTML(row[4], row[2], row[0], row[5], isJacarei, row[8], row[11]);
       }).join('');
     }
@@ -175,7 +170,7 @@
       return `<div class="bg-black/50 border border-white/10 rounded-xl p-5 space-y-4 animate-fade-in-up shadow-2xl">
         <div class="flex justify-between items-start border-b border-white/10 pb-3">
           <div><div class="text-[10px] text-gray-400 uppercase font-bold">Destino</div><div class="text-xl font-black text-green-400">${local}</div>
-          <div class="address-box text-xs text-gray-300"><span>${end}</span><br><a href="${link}" target="_blank" class="text-blue-400 font-bold underline">ABRIR NO GOOGLE MAPS</a></div></div>
+          <div class="address-box text-xs text-gray-300"><span>${end}</span><br><a href="${link}" target="_blank" class="text-blue-400 font-bold underline hover:text-blue-300">ABRIR NO GOOGLE MAPS</a></div></div>
           <div class="text-right"><div class="text-[10px] text-gray-400 uppercase font-bold">DT</div><div class="text-lg font-bold text-white">${dt}</div></div>
         </div>
         <div class="grid grid-cols-2 gap-4">
