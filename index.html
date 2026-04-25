@@ -20,11 +20,16 @@
     .btn-green:hover { background-color: #007a3f; }
     .address-box { background: rgba(255,255,255,0.05); border-left: 4px solid var(--heineken-green); padding: 12px; margin-top: 12px; border-radius: 4px; }
     
-    /* Scrollbar estilizada */
     .custom-scroll::-webkit-scrollbar { width: 6px; }
     .custom-scroll::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 10px; }
     .custom-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 10px; }
     .custom-scroll::-webkit-scrollbar-thumb:hover { background: var(--heineken-green); }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-in-up { animation: fadeInUp 0.3s ease-out forwards; }
   </style>
 </head>
 <body class="antialiased min-h-screen flex flex-col items-center p-4 sm:p-8 relative">
@@ -53,41 +58,32 @@
             <span class="text-2xl leading-none">›</span>
           </button>
         </div>
-
       </div>
     </div>
 
-    <div id="results" class="mt-8 space-y-4">
-      </div>
+    <div id="results" class="mt-8 space-y-4"></div>
   </div>
 
   <div id="descargaModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex justify-center items-end sm:items-center p-4 transition-all">
-    <div class="bg-[#174017] border border-white/20 rounded-2xl p-6 w-full max-w-lg shadow-2xl flex flex-col max-h-[85vh] animate-fade-in-up">
+    <div class="bg-[#174017] border border-white/20 rounded-2xl p-6 w-full max-w-lg shadow-2xl flex flex-col max-h-[85vh]">
       <div class="flex justify-between items-center mb-4 border-b border-white/10 pb-3">
         <h2 class="text-white font-title text-2xl tracking-wider">📦 Descarga Direta</h2>
-        <button onclick="fecharMenuDescarga()" class="text-gray-400 hover:text-white text-3xl leading-none">&times;</button>
+        <button onclick="fecharMenuDescarga()" class="text-gray-400 hover:text-white text-3xl leading-none">×</button>
       </div>
-      
       <div class="flex-1 overflow-y-auto space-y-5 pr-2 custom-scroll mb-2">
         <div>
           <div class="text-xs text-gray-400 uppercase font-bold mb-2">Matéria-Prima</div>
-          <button onclick="selecionarDescarga('Insumo')" class="w-full text-left bg-white/10 hover:bg-white/20 border border-white/20 text-white py-3 px-4 rounded-xl text-sm font-bold transition-colors">
-            🧪 Descarga de Insumo
-          </button>
+          <button onclick="selecionarDescarga('Insumo')" class="w-full text-left bg-white/10 hover:bg-white/20 border border-white/20 text-white py-3 px-4 rounded-xl text-sm font-bold transition-colors">🧪 Descarga de Insumo</button>
         </div>
-
         <div>
           <div class="text-xs text-gray-400 uppercase font-bold mb-2">Devoluções / Vasilhames</div>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
             <button onclick="selecionarDescarga('Caixa Verde')" class="text-left bg-white/10 hover:bg-white/20 border border-white/20 text-white py-3 px-4 rounded-xl text-sm font-bold transition-colors">📦 Caixa Verde</button>
             <button onclick="selecionarDescarga('Caixa Amarela')" class="text-left bg-white/10 hover:bg-white/20 border border-white/20 text-white py-3 px-4 rounded-xl text-sm font-bold transition-colors">📦 Caixa Amarela</button>
-            
             <button onclick="selecionarDescarga('Barril 50L')" class="text-left bg-white/10 hover:bg-white/20 border border-white/20 text-white py-3 px-4 rounded-xl text-sm font-bold transition-colors">🛢️ Barril 50L</button>
             <button onclick="selecionarDescarga('Barril 30L')" class="text-left bg-white/10 hover:bg-white/20 border border-white/20 text-white py-3 px-4 rounded-xl text-sm font-bold transition-colors">🛢️ Barril 30L</button>
-            
             <button onclick="selecionarDescarga('Paletes PBR1')" class="text-left bg-white/10 hover:bg-white/20 border border-white/20 text-white py-3 px-4 rounded-xl text-sm font-bold transition-colors">🟫 Paletes PBR1</button>
             <button onclick="selecionarDescarga('Paletes PBR2')" class="text-left bg-white/10 hover:bg-white/20 border border-white/20 text-white py-3 px-4 rounded-xl text-sm font-bold transition-colors">🟫 Paletes PBR2</button>
-            
             <button onclick="selecionarDescarga('Garrafa 250ml')" class="text-left bg-white/10 hover:bg-white/20 border border-white/20 text-white py-3 px-4 rounded-xl text-sm font-bold transition-colors">🍾 Garrafa 250ml</button>
             <button onclick="selecionarDescarga('Garrafa 330 (Praya - Transparente)')" class="text-left bg-white/10 hover:bg-white/20 border border-white/20 text-white py-3 px-4 rounded-xl text-sm font-bold transition-colors">🍾 Garrafa 330 (Praya)</button>
             <button onclick="selecionarDescarga('Garrafa 330 (Heineken)')" class="text-left bg-white/10 hover:bg-white/20 border border-white/20 text-white py-3 px-4 rounded-xl text-sm font-bold transition-colors">🍾 Garrafa 330 (Heineken)</button>
@@ -100,32 +96,25 @@
 
   <div id="adminModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex justify-center items-center p-4 transition-all">
     <div class="bg-[#174017] border border-white/20 rounded-2xl p-6 w-full max-w-sm shadow-2xl flex flex-col max-h-[90vh]">
-      <div class="flex justify-between items-center mb-2 border-b border-white/10 pb-2">
-        <h2 class="text-white font-title text-2xl tracking-wider">⚙️ Configurações</h2>
-      </div>
-      <p class="text-sm text-gray-300 mb-4 mt-2">Defina o destino de descarregamento de cada item.</p>
-      
+      <h2 class="text-white font-title text-2xl tracking-wider mb-2 border-b border-white/10 pb-2">⚙️ Configurações</h2>
+      <p class="text-sm text-gray-300 mb-4 mt-2">Defina o destino de cada item individualmente.</p>
       <div id="adminSettingsList" class="flex-1 overflow-y-auto space-y-2 pr-2 custom-scroll mb-4"></div>
-      
       <div class="flex gap-2 pt-2 border-t border-white/10 mt-auto">
         <button onclick="salvarConfig()" class="btn-green flex-1 py-3 rounded-lg text-sm uppercase">Salvar</button>
-        <button onclick="fecharAdmin()" class="bg-gray-600 hover:bg-gray-500 text-white flex-1 py-3 rounded-lg font-bold text-sm uppercase transition-colors">Cancelar</button>
+        <button onclick="fecharAdmin()" class="bg-gray-600 hover:bg-gray-500 text-white flex-1 py-3 rounded-lg font-bold text-sm uppercase">Cancelar</button>
       </div>
     </div>
   </div>
 
-  <div id="helpBackdrop" class="hidden fixed inset-0 z-40 bg-black/40 backdrop-blur-sm transition-all" onclick="toggleHelpMenu()"></div>
-
-  <div id="helpMenu" class="hidden fixed bottom-24 right-4 sm:right-8 bg-[#102d17] border border-white/20 rounded-2xl shadow-2xl p-4 w-72 z-50 transform transition-all">
-    <h3 class="text-white font-title tracking-wider text-lg mb-3 border-b border-white/10 pb-2">OPÇÕES DE CONTATO</h3>
+  <div id="helpBackdrop" class="hidden fixed inset-0 z-40 bg-black/40 backdrop-blur-sm" onclick="toggleHelpMenu()"></div>
+  <div id="helpMenu" class="hidden fixed bottom-24 right-4 sm:right-8 bg-[#102d17] border border-white/20 rounded-2xl shadow-2xl p-4 w-72 z-50 transition-all">
+    <h3 class="text-white font-title tracking-wider text-lg mb-3 border-b border-white/10 pb-2 uppercase">Opções de Contato</h3>
     <div class="space-y-3">
-      <a href="https://wa.me/5512999999999?text=Ol%C3%A1%2C%20sou%20motorista%20e%20estou%20com%20uma%20d%C3%BAvida%20no%20app%20HEILOG." target="_blank" 
-         class="flex items-center gap-3 bg-[#25D366] hover:bg-[#1da851] text-white p-3 rounded-xl transition-colors shadow-lg">
+      <a href="https://wa.me/5512999999999?text=Olá%2C%20sou%20motorista%20e%20estou%20com%20uma%20dúvida%20no%20app%20HEILOG." target="_blank" class="flex items-center gap-3 bg-[#25D366] hover:bg-[#1da851] text-white p-3 rounded-xl shadow-lg transition-colors">
         <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M12.031 21.036c-1.536 0-3.033-.414-4.35-1.198l-4.839 1.267 1.29-4.717c-.858-1.378-1.31-2.954-1.31-4.57 0-4.793 3.906-8.698 8.699-8.698 4.793 0 8.699 3.905 8.699 8.698 0 4.794-3.906 8.699-8.699 8.699h-.001c0 .001-.001.001-.002.001z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         <span class="font-bold text-sm">Chamar no WhatsApp</span>
       </a>
-      <a href="tel:+551233334444" 
-         class="flex items-center gap-3 bg-white/10 hover:bg-white/20 border border-white/20 text-white p-3 rounded-xl transition-colors">
+      <a href="tel:+551233334444" class="flex items-center gap-3 bg-white/10 hover:bg-white/20 border border-white/20 text-white p-3 rounded-xl transition-colors">
         <span class="text-xl">📞</span>
         <span class="font-bold text-sm">Ligar para a Logística</span>
       </a>
@@ -133,14 +122,13 @@
   </div>
 
   <div class="fixed bottom-6 right-4 sm:right-8 z-50">
-    <button id="helpBtn" onclick="toggleHelpMenu()" class="bg-[#E50025] hover:bg-[#c6001f] text-white rounded-full p-4 shadow-[0_10px_25px_rgba(229,0,37,0.4)] flex items-center gap-2 transition-transform transform hover:scale-105 border-2 border-[#174017]">
+    <button onclick="toggleHelpMenu()" class="bg-[#E50025] hover:bg-[#c6001f] text-white rounded-full p-4 shadow-lg flex items-center gap-2 transition-transform hover:scale-105 border-2 border-[#174017]">
       <span class="text-2xl">💬</span>
-      <span class="font-bold hidden sm:inline tracking-wider">PRECISA DE AJUDA?</span>
+      <span class="font-bold hidden sm:inline tracking-wider uppercase">Precisa de Ajuda?</span>
     </button>
   </div>
 
   <script>
-    // --- LISTA CENTRAL DE OPERAÇÕES INDIRETAS ---
     const operacoesConfiguraveis = [
       { id: 'Insumo', nome: '🧪 Insumo' },
       { id: 'Caixa Verde', nome: '📦 Caixa Verde' },
@@ -155,66 +143,33 @@
       { id: 'Garrafa 600', nome: '🍾 Garrafa 600' }
     ];
 
-    // --- Lógica Modal Descarga ---
-    function abrirMenuDescarga() {
-      document.getElementById('descargaModal').classList.remove('hidden');
-    }
+    // Links de Coordenadas Diretas (Jacareí e Caçapava)
+    const LINK_MAPS_FABRICA = "https://www.google.com/maps/search/?api=1&query=-23.313467,-45.960241";
+    const LINK_MAPS_LUSITANA = "https://www.google.com/maps/search/?api=1&query=-23.136015,-45.727546";
 
-    function fecharMenuDescarga() {
-      document.getElementById('descargaModal').classList.add('hidden');
-    }
-
-    function selecionarDescarga(tipo) {
-      fecharMenuDescarga();
-      mostrarOperacaoDireta(tipo);
-    }
-
-    // --- Lógica de Configuração Interna (Admin) ---
+    function abrirMenuDescarga() { document.getElementById('descargaModal').classList.remove('hidden'); }
+    function fecharMenuDescarga() { document.getElementById('descargaModal').classList.add('hidden'); }
+    function selecionarDescarga(tipo) { fecharMenuDescarga(); mostrarOperacaoDireta(tipo); }
     function abrirAdmin() {
       const container = document.getElementById('adminSettingsList');
       container.innerHTML = operacoesConfiguraveis.map((op, index) => {
         const destinoSalvo = localStorage.getItem('destino_' + op.id) || 'FÁBRICA'; 
-        return `
-          <div class="bg-black/20 p-2.5 rounded-lg border border-white/5">
-            <label class="block text-[11px] text-gray-300 uppercase font-bold mb-1">${op.nome}</label>
-            <select id="config_sel_${index}" class="form-input w-full p-2 rounded-lg text-white bg-black/40 border border-white/20 text-sm font-bold">
-              <option value="FÁBRICA" ${destinoSalvo === 'FÁBRICA' ? 'selected' : ''}>📍 FÁBRICA</option>
-              <option value="LUSITANA" ${destinoSalvo === 'LUSITANA' ? 'selected' : ''}>📍 LUSITANA</option>
-            </select>
-          </div>
-        `;
+        return `<div class="bg-black/20 p-2.5 rounded-lg border border-white/5"><label class="block text-[11px] text-gray-300 uppercase font-bold mb-1">${op.nome}</label><select id="config_sel_${index}" class="form-input w-full p-2 rounded-lg text-white bg-black/40 border border-white/20 text-sm font-bold"><option value="FÁBRICA" ${destinoSalvo === 'FÁBRICA' ? 'selected' : ''}>📍 FÁBRICA</option><option value="LUSITANA" ${destinoSalvo === 'LUSITANA' ? 'selected' : ''}>📍 LUSITANA</option></select></div>`;
       }).join('');
       document.getElementById('adminModal').classList.remove('hidden');
     }
-
-    function fecharAdmin() {
-      document.getElementById('adminModal').classList.add('hidden');
-    }
-
+    function fecharAdmin() { document.getElementById('adminModal').classList.add('hidden'); }
     function salvarConfig() {
-      operacoesConfiguraveis.forEach((op, index) => {
-        const valorSelecionado = document.getElementById('config_sel_' + index).value;
-        localStorage.setItem('destino_' + op.id, valorSelecionado);
-      });
+      operacoesConfiguraveis.forEach((op, index) => { localStorage.setItem('destino_' + op.id, document.getElementById('config_sel_' + index).value); });
       fecharAdmin();
       document.getElementById('results').innerHTML = '';
-      document.getElementById('searchInput').value = '';
     }
-
-    // --- Lógica do Menu Flutuante ---
     function toggleHelpMenu() {
       const menu = document.getElementById('helpMenu');
       const backdrop = document.getElementById('helpBackdrop');
-      if (menu.classList.contains('hidden')) {
-        menu.classList.remove('hidden');
-        backdrop.classList.remove('hidden');
-      } else {
-        menu.classList.add('hidden');
-        backdrop.classList.add('hidden');
-      }
+      menu.classList.toggle('hidden'); backdrop.classList.toggle('hidden');
     }
 
-    // --- Lógica da Planilha e Busca ---
     const GOOGLE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSHLJspPB5rUhpKWTUFGrtMeksd24eu1-I_l5S2qkhgFsie6cn1hITIUmr3k-ZuL4stm1x8MT0mC30s/pub?output=csv';
     const proxies = [
       (url) => `https://api.codetabs.com/v1/proxy/?quest=${encodeURIComponent(url)}`,
@@ -227,85 +182,50 @@
       const statusEl = document.getElementById('status');
       const targetUrl = `${GOOGLE_SHEET_CSV_URL}&t=${Date.now()}`;
       let sucesso = false;
-
       for (const proxyBuilder of proxies) {
         try {
           const url = proxyBuilder(targetUrl);
           const response = await fetch(url);
-          if (!response.ok) throw new Error(`Falha HTTP: ${response.status}`);
+          if (!response.ok) throw new Error();
           const csvText = await response.text();
-          if (csvText.includes('<html') && !csvText.includes('DTS')) throw new Error('Bloqueio HTML');
+          if (csvText.includes('<html') && !csvText.includes('DTS')) throw new Error();
           processarCSV(csvText);
-          statusEl.textContent = `Base atualizada! (${database.length} registros carregados)`;
+          statusEl.textContent = `Base atualizada! (${database.length} registros)`;
           statusEl.className = 'text-xs text-green-400 mt-2 font-bold';
-          sucesso = true;
-          break; 
-        } catch (error) {
-          console.warn('Tentando próximo proxy...');
-        }
+          sucesso = true; break; 
+        } catch (e) {}
       }
-
-      if (!sucesso) {
-        statusEl.textContent = 'Erro ao carregar a planilha. Tente recarregar a página.';
-        statusEl.className = 'text-xs text-red-400 mt-2 font-bold';
-      }
+      if (!sucesso) statusEl.textContent = 'Erro ao carregar planilha.';
     }
 
     function processarCSV(csvText) {
       const textoLimpo = csvText.replace(/^\uFEFF/, '').trim();
       const lines = textoLimpo.split(/\r?\n/);
       if (lines.length < 2) return;
-
       const parseLine = (line) => {
-        const values = [];
-        const regex = /("([^"]|"")*"|[^,]*)(,|$)/g;
+        const values = []; const regex = /("([^"]|"")*"|[^,]*)(,|$)/g;
         line.replace(regex, (match, p1) => {
-          let value = p1;
-          if (value.startsWith('"') && value.endsWith('"')) value = value.slice(1, -1).replace(/""/g, '"');
-          values.push(value.trim()); 
+          let v = p1; if (v.startsWith('"') && v.endsWith('"')) v = v.slice(1, -1).replace(/""/g, '"');
+          values.push(v.trim());
         });
         return values;
       };
-      
-      database = lines.slice(1).map(line => {
-        if (line.trim() === '') return null;
-        return parseLine(line);
-      }).filter(Boolean);
+      database = lines.slice(1).map(line => line.trim() ? parseLine(line) : null).filter(Boolean);
     }
 
-    // --- Identificador de Ícones ---
-    function getIcone(tipo) {
-      const t = tipo.toLowerCase();
-      if (t.includes('insumo')) return '🧪';
-      if (t.includes('caixa')) return '📦';
-      if (t.includes('barril')) return '🛢️';
-      if (t.includes('palete')) return '🟫';
-      if (t.includes('garrafa')) return '🍾';
-      return '🔄';
-    }
-
-    // --- Operações Diretas (Sem Planilha) ---
     function mostrarOperacaoDireta(tipo) {
       const resultsContainer = document.getElementById('results');
-      document.getElementById('searchInput').value = ''; 
-      
-      let tituloOp = `Descarga de ${tipo}`;
-      let iconeOp = getIcone(tipo);
-      
       const destinoSalvo = localStorage.getItem('destino_' + tipo) || 'FÁBRICA';
-      
-      let depositoFinal = '';
-      let enderecoFinal = '';
-      let mapsLinkFinal = '';
+      let depFinal = '', endFinal = '', mapFinal = '';
 
       if (destinoSalvo === 'LUSITANA') {
-        depositoFinal = 'LUSITANA (CAÇAPAVA)';
-        enderecoFinal = '📍 Rua Vereador Geraldo Nogueira da Silva, 5111 - Caçapava, SP, 12280-001';
-        mapsLinkFinal = 'https://maps.app.goo.gl/wR9J8xY1XkY7cZQz9';
+        depFinal = 'LUSITANA (CAÇAPAVA)';
+        endFinal = '📍 Rua Vereador Geraldo Nogueira da Silva, 5111 - Caçapava, SP, 12280-001';
+        mapFinal = LINK_MAPS_LUSITANA;
       } else {
-        depositoFinal = 'FÁBRICA (JACAREÍ)';
-        enderecoFinal = '📍 Av. Presidente Humberto de Alencar Castelo Branco, 2911 - Rio Abaixo, Jacareí - SP, 12321-150';
-        mapsLinkFinal = 'https://maps.app.goo.gl/3QyRkPqQeHj5Vz7aA';
+        depFinal = 'FÁBRICA (JACAREÍ)';
+        endFinal = '📍 Av. Presidente Humberto de Alencar Castelo Branco, 2911 - Rio Abaixo, Jacareí - SP, 12321-150';
+        mapFinal = LINK_MAPS_FABRICA;
       }
 
       resultsContainer.innerHTML = `
@@ -313,149 +233,62 @@
           <div class="flex justify-between items-start border-b border-blue-500/30 pb-3">
             <div class="flex-1 pr-4">
               <div class="text-xs text-blue-300 font-bold uppercase">Operação Direta</div>
-              <div class="text-2xl font-black text-white">${depositoFinal}</div>
-              
+              <div class="text-2xl font-black text-white">${depFinal}</div>
               <div class="address-box border-blue-500 flex flex-col gap-2">
-                <span class="text-sm text-gray-200">${enderecoFinal}</span>
-                <a href="${mapsLinkFinal}" target="_blank" class="inline-flex items-center gap-1.5 text-blue-400 hover:text-blue-300 font-bold text-sm w-fit transition-colors">
+                <span class="text-sm text-gray-200">${endFinal}</span>
+                <a href="${mapFinal}" target="_blank" class="inline-flex items-center gap-1.5 text-blue-400 hover:text-blue-300 font-bold text-sm w-fit">
                   <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
                   Abrir no Google Maps
                 </a>
               </div>
             </div>
-            <div class="text-right">
-              <div class="text-xs text-blue-300 font-bold uppercase">DTS</div>
-              <div class="text-xl font-bold text-white">Sem DT</div>
-            </div>
+            <div class="text-right"><div class="text-xs text-blue-300 font-bold uppercase">DTS</div><div class="text-xl font-bold text-white">---</div></div>
           </div>
-          
           <div class="pt-2">
-            <div class="text-xs text-blue-300 uppercase mb-1">Item a ser Descarregado</div>
-            <div class="font-semibold text-white text-lg">${iconeOp} ${tituloOp}</div>
-            <p class="text-sm text-blue-200 mt-2">Siga as orientações para o endereço informado acima. Não é necessário inserir DT.</p>
+            <div class="text-xs text-blue-300 uppercase mb-1">Item</div>
+            <div class="font-semibold text-white text-lg">${tipo}</div>
           </div>
-        </div>
-      `;
+        </div>`;
     }
 
     function buscarDestino() {
-      const query = document.getElementById('searchInput').value.trim().toLowerCase();
-      const resultsContainer = document.getElementById('results');
-      
-      if (!query) {
-        resultsContainer.innerHTML = '<p class="text-yellow-400">Por favor, digite uma DT ou valor para buscar.</p>';
+      const q = document.getElementById('searchInput').value.trim().toLowerCase();
+      const container = document.getElementById('results');
+      if (!q) return;
+      const res = database.filter(row => row.some(c => c && c.toLowerCase().includes(q)));
+      if (res.length === 0) {
+        container.innerHTML = `<div class="p-4 bg-red-900/40 border border-red-500 rounded-xl text-red-200">Não encontrado.</div>`;
         return;
       }
-
-      // Atalhos
-      const atalhosExatos = {
-        'insumo': 'Insumo',
-        'caixa verde': 'Caixa Verde',
-        'caixa amarela': 'Caixa Amarela',
-        'barril 50l': 'Barril 50L',
-        'barril 30l': 'Barril 30L',
-        'paletes pbr1': 'Paletes PBR1', 'palete pbr1': 'Paletes PBR1',
-        'paletes pbr2': 'Paletes PBR2', 'palete pbr2': 'Paletes PBR2',
-        'garrafa 250ml': 'Garrafa 250ml',
-        'garrafa 330 praya': 'Garrafa 330 (Praya - Transparente)',
-        'praya': 'Garrafa 330 (Praya - Transparente)',
-        'garrafa 330 heineken': 'Garrafa 330 (Heineken)',
-        'heineken 330': 'Garrafa 330 (Heineken)',
-        'garrafa 600': 'Garrafa 600'
-      };
-
-      if (atalhosExatos[query]) {
-        mostrarOperacaoDireta(atalhosExatos[query]);
-        return;
-      }
-
-      const resultados = database.filter(row => {
-        return row.some(cell => cell && cell.toLowerCase().includes(query));
-      });
-
-      if (resultados.length === 0) {
-        resultsContainer.innerHTML = `<div class="p-4 bg-red-900/40 border border-red-500 rounded-xl text-red-200 animate-fade-in-up">Nenhuma operação encontrada para "<b>${query}</b>".</div>`;
-        return;
-      }
-
-      resultsContainer.innerHTML = resultados.map(row => {
-        const dt             = row[0] || 'N/A';
-        const canal          = row[1] || 'N/A';
-        const cliente        = row[2] || 'N/A';
-        const produto        = row[3] || 'N/A';
-        const descricaoE     = row[4] || 'N/A';
-        const plt            = row[5] || '0';
-        const deposito       = row[6] || 'N/A';
-        const transportadora = row[7] || 'N/A';
-        
-        let endereco = '';
-        let mapsLink = '';
-        const dep = deposito.toUpperCase();
-        
-        if (dep.includes('FÁBRICA') || dep.includes('FABRICA')) {
-          endereco = '📍 Av. Presidente Humberto de Alencar Castelo Branco, 2911 - Rio Abaixo, Jacareí - SP, 12321-150';
-          mapsLink = 'https://maps.app.goo.gl/3QyRkPqQeHj5Vz7aA'; 
-        } else if (dep.includes('LUSITANA') || dep.includes('HEILO')) {
-          endereco = '📍 Rua Vereador Geraldo Nogueira da Silva, 5111 - Caçapava, SP, 12280-001';
-          mapsLink = 'https://maps.app.goo.gl/wR9J8xY1XkY7cZQz9'; 
-        }
-        
-        return `
-          <div class="bg-black/40 border border-white/10 rounded-xl p-5 space-y-4 shadow-lg animate-fade-in-up">
-            <div class="flex justify-between items-start border-b border-white/10 pb-3">
-              <div class="flex-1 pr-4">
-                <div class="text-xs text-gray-400 font-bold uppercase">Local (Depósito)</div>
-                <div class="text-2xl font-black text-green-400">${deposito}</div>
-                ${endereco ? `
-                  <div class="address-box flex flex-col gap-2">
-                    <span class="text-sm text-gray-200">${endereco}</span>
-                    <a href="${mapsLink}" target="_blank" class="inline-flex items-center gap-1.5 text-blue-400 hover:text-blue-300 font-bold text-sm w-fit transition-colors">
-                      <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
-                      Abrir no Google Maps
-                    </a>
-                  </div>
-                ` : ''}
-              </div>
-              <div class="text-right">
-                <div class="text-xs text-gray-400 font-bold uppercase">DTS</div>
-                <div class="text-xl font-bold">${dt}</div>
+      container.innerHTML = res.map(row => {
+        const dep = (row[6] || '').toUpperCase();
+        let end = '', link = '';
+        if (dep.includes('FÁBRICA') || dep.includes('FABRICA')) { end = '📍 Av. Presidente Humberto de Alencar Castelo Branco, 2911 - Jacareí'; link = LINK_MAPS_FABRICA; }
+        else { end = '📍 Rua Vereador Geraldo Nogueira da Silva, 5111 - Caçapava'; link = LINK_MAPS_LUSITANA; }
+        return `<div class="bg-black/40 border border-white/10 rounded-xl p-5 space-y-4 shadow-lg animate-fade-in-up">
+          <div class="flex justify-between items-start border-b border-white/10 pb-3">
+            <div class="flex-1 pr-4">
+              <div class="text-xs text-gray-400 font-bold uppercase">Local</div>
+              <div class="text-2xl font-black text-green-400">${row[6]}</div>
+              <div class="address-box flex flex-col gap-2">
+                <span class="text-sm text-gray-200">${end}</span>
+                <a href="${link}" target="_blank" class="inline-flex items-center gap-1.5 text-blue-400 hover:text-blue-300 font-bold text-sm w-fit">
+                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg> Abrir no Maps
+                </a>
               </div>
             </div>
-            
-            <div class="grid grid-cols-2 gap-4 pt-2">
-              <div class="col-span-2 sm:col-span-1">
-                <div class="text-xs text-gray-400 uppercase">Cliente</div>
-                <div class="font-semibold text-gray-100 truncate" title="${cliente}">${cliente}</div>
-              </div>
-              <div class="col-span-2 sm:col-span-1">
-                <div class="text-xs text-gray-400 uppercase">Transportadora</div>
-                <div class="font-semibold text-gray-100 truncate" title="${transportadora}">${transportadora}</div>
-              </div>
-              
-              <div class="col-span-2">
-                <div class="text-xs text-gray-400 uppercase">Descrição (Produto ${produto})</div>
-                <div class="font-semibold text-gray-100">${descricaoE}</div>
-              </div>
-
-              <div>
-                <div class="text-xs text-gray-400 uppercase">Canal</div>
-                <div class="font-semibold text-gray-100">${canal}</div>
-              </div>
-              <div>
-                <div class="text-xs text-gray-400 uppercase">Quantidade (PLT)</div>
-                <div class="font-semibold text-gray-100">${plt}</div>
-              </div>
-            </div>
+            <div class="text-right"><div class="text-xs text-gray-400 font-bold uppercase">DTS</div><div class="text-xl font-bold">${row[0]}</div></div>
           </div>
-        `;
+          <div class="grid grid-cols-2 gap-4 pt-2">
+            <div class="col-span-2 sm:col-span-1"><div class="text-xs text-gray-400 uppercase">Cliente</div><div class="font-semibold text-gray-100">${row[2]}</div></div>
+            <div class="col-span-2 sm:col-span-1"><div class="text-xs text-gray-400 uppercase">Descrição</div><div class="font-semibold text-gray-100">${row[4]}</div></div>
+          </div>
+        </div>`;
       }).join('');
     }
 
     document.getElementById('searchBtn').addEventListener('click', buscarDestino);
-    document.getElementById('searchInput').addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') buscarDestino();
-    });
-
+    document.getElementById('searchInput').addEventListener('keypress', (e) => { if (e.key === 'Enter') buscarDestino(); });
     window.onload = carregarPlanilha;
   </script>
 </body>
