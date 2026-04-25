@@ -3,251 +3,70 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>HEILOG - Consulta Rápida de Carregamento</title>
+  <title>HEILOG - Consulta Rápida</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
   <style>
-    :root {
-      --heineken-green: #00904A;
-      --dark-bg: #174017;
-    }
+    :root { --heineken-green: #00904A; --dark-bg: #174017; }
     body { font-family: 'Roboto', sans-serif; background-color: var(--dark-bg); color: #f3f4f6; }
     .font-title { font-family: 'Oswald', sans-serif; }
     .card { background-color: rgba(0, 0, 0, 0.3); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
     .form-input { background-color: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2); color: white; }
-    .form-input:focus { border-color: var(--heineken-green); box-shadow: 0 0 0 2px rgba(0, 144, 74, 0.5); outline: none; }
+    .form-input:focus { border-color: var(--heineken-green); outline: none; }
     .btn-green { background-color: var(--heineken-green); color: white; font-weight: bold; }
-    .btn-green:hover { background-color: #007a3f; }
     .address-box { background: rgba(255,255,255,0.05); border-left: 4px solid var(--heineken-green); padding: 12px; margin-top: 12px; border-radius: 4px; }
-    
-    .custom-scroll::-webkit-scrollbar { width: 6px; }
-    .custom-scroll::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 10px; }
-    .custom-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 10px; }
-    .custom-scroll::-webkit-scrollbar-thumb:hover { background: var(--heineken-green); }
-
-    @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     .animate-fade-in-up { animation: fadeInUp 0.3s ease-out forwards; }
   </style>
 </head>
-<body class="antialiased min-h-screen flex flex-col items-center p-4 sm:p-8 relative">
+<body class="antialiased min-h-screen flex flex-col items-center p-4 sm:p-8">
 
-  <div class="w-full max-w-2xl card rounded-2xl p-6 sm:p-8 shadow-2xl mt-10 z-10">
+  <div class="w-full max-w-2xl card rounded-2xl p-6 sm:p-8 shadow-2xl mt-10">
     <div class="text-center mb-8">
       <h1 class="font-title text-4xl font-bold text-white tracking-wider">
         HEILOG <span class="text-green-400 cursor-default select-none" ondblclick="abrirAdmin()">CONSULTA</span>
       </h1>
-      <p class="text-gray-300 mt-2">Saiba onde carregar/descarregar</p>
-      <div id="status" class="text-xs text-yellow-300 mt-2">Conectando à base de dados...</div>
+      <p class="text-gray-300 mt-2">Dados de Carregamento e Descarga</p>
+      <div id="status" class="text-xs text-yellow-300 mt-2">Sincronizando base...</div>
     </div>
 
     <div class="space-y-4">
-      <div>
-        <label class="block text-sm font-bold text-gray-400 mb-2 uppercase tracking-wide">Buscar pela Planilha</label>
-        <div class="flex gap-3">
-          <input type="text" id="searchInput" class="form-input w-full p-4 rounded-xl text-lg" placeholder="Digite a DT, Produto ou Descrição...">
-          <button id="searchBtn" class="btn-green px-8 rounded-xl text-lg transition-all">Buscar</button>
-        </div>
-        
-        <div class="mt-6 pt-5 border-t border-white/10">
-          <label class="block text-sm font-bold text-gray-400 mb-2 uppercase tracking-wide">Operações Diretas (Sem DT)</label>
-          <button onclick="abrirMenuDescarga()" class="w-full bg-white/10 hover:bg-white/20 border border-white/20 text-white py-4 px-4 rounded-xl text-lg font-bold transition-colors flex items-center justify-between shadow-lg">
-            <span class="flex items-center gap-2">📦 Escolher opção de Descarga</span>
-            <span class="text-2xl leading-none">›</span>
-          </button>
-        </div>
+      <label class="block text-sm font-bold text-gray-400 uppercase tracking-wide">Buscar por DT ou Produto</label>
+      <div class="flex gap-3">
+        <input type="text" id="searchInput" class="form-input w-full p-4 rounded-xl text-lg" placeholder="Ex: 4500123456">
+        <button id="searchBtn" class="btn-green px-8 rounded-xl text-lg transition-all hover:bg-green-700">Buscar</button>
+      </div>
+      
+      <div class="mt-6 pt-5 border-t border-white/10">
+        <button onclick="abrirMenuDescarga()" class="w-full bg-white/10 hover:bg-white/20 border border-white/20 text-white py-4 px-4 rounded-xl text-lg font-bold flex items-center justify-between transition-colors">
+          <span>📦 Descarga Direta (Sem DT)</span>
+          <span class="text-2xl">›</span>
+        </button>
       </div>
     </div>
 
     <div id="results" class="mt-8 space-y-4"></div>
   </div>
 
-  <div id="descargaModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex justify-center items-end sm:items-center p-4 transition-all">
-    <div class="bg-[#174017] border border-white/20 rounded-2xl p-6 w-full max-w-lg shadow-2xl flex flex-col max-h-[85vh]">
-      <div class="flex justify-between items-center mb-4 border-b border-white/10 pb-3">
-        <h2 class="text-white font-title text-2xl tracking-wider">📦 Descarga Direta</h2>
-        <button onclick="fecharMenuDescarga()" class="text-gray-400 hover:text-white text-3xl leading-none">×</button>
-      </div>
-      <div class="flex-1 overflow-y-auto space-y-5 pr-2 custom-scroll mb-2">
-        <div>
-          <div class="text-xs text-gray-400 uppercase font-bold mb-2">Matéria-Prima</div>
-          <button onclick="selecionarDescarga('Insumo')" class="w-full text-left bg-white/10 hover:bg-white/20 border border-white/20 text-white py-3 px-4 rounded-xl text-sm font-bold transition-colors">🧪 Descarga de Insumo</button>
-        </div>
-        <div>
-          <div class="text-xs text-gray-400 uppercase font-bold mb-2">Devoluções / Vasilhames</div>
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            <button onclick="selecionarDescarga('Caixa Verde')" class="text-left bg-white/10 hover:bg-white/20 border border-white/20 text-white py-3 px-4 rounded-xl text-sm font-bold transition-colors">📦 Caixa Verde</button>
-            <button onclick="selecionarDescarga('Caixa Amarela')" class="text-left bg-white/10 hover:bg-white/20 border border-white/20 text-white py-3 px-4 rounded-xl text-sm font-bold transition-colors">📦 Caixa Amarela</button>
-            <button onclick="selecionarDescarga('Barril 50L')" class="text-left bg-white/10 hover:bg-white/20 border border-white/20 text-white py-3 px-4 rounded-xl text-sm font-bold transition-colors">🛢️ Barril 50L</button>
-            <button onclick="selecionarDescarga('Barril 30L')" class="text-left bg-white/10 hover:bg-white/20 border border-white/20 text-white py-3 px-4 rounded-xl text-sm font-bold transition-colors">🛢️ Barril 30L</button>
-            <button onclick="selecionarDescarga('Paletes PBR1')" class="text-left bg-white/10 hover:bg-white/20 border border-white/20 text-white py-3 px-4 rounded-xl text-sm font-bold transition-colors">🟫 Paletes PBR1</button>
-            <button onclick="selecionarDescarga('Paletes PBR2')" class="text-left bg-white/10 hover:bg-white/20 border border-white/20 text-white py-3 px-4 rounded-xl text-sm font-bold transition-colors">🟫 Paletes PBR2</button>
-            <button onclick="selecionarDescarga('Garrafa 250ml')" class="text-left bg-white/10 hover:bg-white/20 border border-white/20 text-white py-3 px-4 rounded-xl text-sm font-bold transition-colors">🍾 Garrafa 250ml</button>
-            <button onclick="selecionarDescarga('Garrafa 330 (Praya - Transparente)')" class="text-left bg-white/10 hover:bg-white/20 border border-white/20 text-white py-3 px-4 rounded-xl text-sm font-bold transition-colors">🍾 Garrafa 330 (Praya)</button>
-            <button onclick="selecionarDescarga('Garrafa 330 (Heineken)')" class="text-left bg-white/10 hover:bg-white/20 border border-white/20 text-white py-3 px-4 rounded-xl text-sm font-bold transition-colors">🍾 Garrafa 330 (Heineken)</button>
-            <button onclick="selecionarDescarga('Garrafa 600')" class="text-left bg-white/10 hover:bg-white/20 border border-white/20 text-white py-3 px-4 rounded-xl text-sm font-bold transition-colors">🍾 Garrafa 600</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div id="adminModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex justify-center items-center p-4 transition-all">
-    <div class="bg-[#174017] border border-white/20 rounded-2xl p-6 w-full max-w-sm shadow-2xl flex flex-col max-h-[90vh]">
-      <h2 class="text-white font-title text-2xl tracking-wider mb-2 border-b border-white/10 pb-2">⚙️ Configurações</h2>
-      <p class="text-sm text-gray-300 mb-4 mt-2">Defina o destino de cada item individualmente.</p>
-      <div id="adminSettingsList" class="flex-1 overflow-y-auto space-y-2 pr-2 custom-scroll mb-4"></div>
-      <div class="flex gap-2 pt-2 border-t border-white/10 mt-auto">
-        <button onclick="salvarConfig()" class="btn-green flex-1 py-3 rounded-lg text-sm uppercase">Salvar</button>
-        <button onclick="fecharAdmin()" class="bg-gray-600 hover:bg-gray-500 text-white flex-1 py-3 rounded-lg font-bold text-sm uppercase">Cancelar</button>
-      </div>
-    </div>
-  </div>
-
-  <div id="helpBackdrop" class="hidden fixed inset-0 z-40 bg-black/40 backdrop-blur-sm" onclick="toggleHelpMenu()"></div>
-  <div id="helpMenu" class="hidden fixed bottom-24 right-4 sm:right-8 bg-[#102d17] border border-white/20 rounded-2xl shadow-2xl p-4 w-72 z-50 transition-all">
-    <h3 class="text-white font-title tracking-wider text-lg mb-3 border-b border-white/10 pb-2 uppercase">Opções de Contato</h3>
-    <div class="space-y-3">
-      <a href="https://wa.me/5512999999999?text=Olá%2C%20sou%20motorista%20e%20estou%20com%20uma%20dúvida%20no%20app%20HEILOG." target="_blank" class="flex items-center gap-3 bg-[#25D366] hover:bg-[#1da851] text-white p-3 rounded-xl shadow-lg transition-colors">
-        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M12.031 21.036c-1.536 0-3.033-.414-4.35-1.198l-4.839 1.267 1.29-4.717c-.858-1.378-1.31-2.954-1.31-4.57 0-4.793 3.906-8.698 8.699-8.698 4.793 0 8.699 3.905 8.699 8.698 0 4.794-3.906 8.699-8.699 8.699h-.001c0 .001-.001.001-.002.001z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        <span class="font-bold text-sm">Chamar no WhatsApp</span>
-      </a>
-      <a href="tel:+551233334444" class="flex items-center gap-3 bg-white/10 hover:bg-white/20 border border-white/20 text-white p-3 rounded-xl transition-colors">
-        <span class="text-xl">📞</span>
-        <span class="font-bold text-sm">Ligar para a Logística</span>
-      </a>
-    </div>
-  </div>
-
-  <div class="fixed bottom-6 right-4 sm:right-8 z-50">
-    <button onclick="toggleHelpMenu()" class="bg-[#E50025] hover:bg-[#c6001f] text-white rounded-full p-4 shadow-lg flex items-center gap-2 transition-transform hover:scale-105 border-2 border-[#174017]">
-      <span class="text-2xl">💬</span>
-      <span class="font-bold hidden sm:inline tracking-wider uppercase">Precisa de Ajuda?</span>
-    </button>
-  </div>
-
   <script>
-    const operacoesConfiguraveis = [
-      { id: 'Insumo', nome: '🧪 Insumo' },
-      { id: 'Caixa Verde', nome: '📦 Caixa Verde' },
-      { id: 'Caixa Amarela', nome: '📦 Caixa Amarela' },
-      { id: 'Barril 50L', nome: '🛢️ Barril 50L' },
-      { id: 'Barril 30L', nome: '🛢️ Barril 30L' },
-      { id: 'Paletes PBR1', nome: '🟫 Paletes PBR1' },
-      { id: 'Paletes PBR2', nome: '🟫 Paletes PBR2' },
-      { id: 'Garrafa 250ml', nome: '🍾 Garrafa 250ml' },
-      { id: 'Garrafa 330 (Praya - Transparente)', nome: '🍾 Garrafa 330 (Praya)' },
-      { id: 'Garrafa 330 (Heineken)', nome: '🍾 Garrafa 330 (Heineken)' },
-      { id: 'Garrafa 600', nome: '🍾 Garrafa 600' }
-    ];
+    // Coordenadas Exatas (Jacareí e Caçapava) para evitar erros do Maps
+    const LINK_JACAREI = "https://www.google.com/maps?q=-23.2872,-45.9812";
+    const LINK_CACAPAVA = "https://www.google.com/maps?q=-23.1393,-45.7523";
 
-    const LINK_MAPS_FABRICA = "https://www.google.com/maps/search/?api=1&query=-23.315053,-45.986611";
-    const LINK_MAPS_LUSITANA = "https://www.google.com/maps/search/?api=1&query=-23.153163,-45.698064";
-
-    function abrirMenuDescarga() { document.getElementById('descargaModal').classList.remove('hidden'); }
-    function fecharMenuDescarga() { document.getElementById('descargaModal').classList.add('hidden'); }
-    function selecionarDescarga(tipo) { fecharMenuDescarga(); mostrarOperacaoDireta(tipo); }
-    function abrirAdmin() {
-      const container = document.getElementById('adminSettingsList');
-      container.innerHTML = operacoesConfiguraveis.map((op, index) => {
-        const destinoSalvo = localStorage.getItem('destino_' + op.id) || 'FÁBRICA'; 
-        return `<div class="bg-black/20 p-2.5 rounded-lg border border-white/5"><label class="block text-[11px] text-gray-300 uppercase font-bold mb-1">${op.nome}</label><select id="config_sel_${index}" class="form-input w-full p-2 rounded-lg text-white bg-black/40 border border-white/20 text-sm font-bold"><option value="FÁBRICA" ${destinoSalvo === 'FÁBRICA' ? 'selected' : ''}>📍 FÁBRICA</option><option value="LUSITANA" ${destinoSalvo === 'LUSITANA' ? 'selected' : ''}>📍 LUSITANA</option></select></div>`;
-      }).join('');
-      document.getElementById('adminModal').classList.remove('hidden');
-    }
-    function fecharAdmin() { document.getElementById('adminModal').classList.add('hidden'); }
-    function salvarConfig() {
-      operacoesConfiguraveis.forEach((op, index) => { localStorage.setItem('destino_' + op.id, document.getElementById('config_sel_' + index).value); });
-      fecharAdmin();
-      document.getElementById('results').innerHTML = '';
-    }
-    function toggleHelpMenu() {
-      const menu = document.getElementById('helpMenu');
-      const backdrop = document.getElementById('helpBackdrop');
-      menu.classList.toggle('hidden'); backdrop.classList.toggle('hidden');
-    }
-
-    const GOOGLE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSHLJspPB5rUhpKWTUFGrtMeksd24eu1-I_l5S2qkhgFsie6cn1hITIUmr3k-ZuL4stm1x8MT0mC30s/pub?output=csv';
-    const proxies = [
-      (url) => `https://api.codetabs.com/v1/proxy/?quest=${encodeURIComponent(url)}`,
-      (url) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
-      (url) => url 
-    ];
+    const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSHLJspPB5rUhpKWTUFGrtMeksd24eu1-I_l5S2qkhgFsie6cn1hITIUmr3k-ZuL4stm1x8MT0mC30s/pub?output=csv';
     let database = [];
 
     async function carregarPlanilha() {
-      const statusEl = document.getElementById('status');
-      const targetUrl = `${GOOGLE_SHEET_CSV_URL}&t=${Date.now()}`;
-      let sucesso = false;
-      for (const proxyBuilder of proxies) {
-        try {
-          const url = proxyBuilder(targetUrl);
-          const response = await fetch(url);
-          if (!response.ok) throw new Error();
-          const csvText = await response.text();
-          if (csvText.includes('<html') && !csvText.includes('DTS')) throw new Error();
-          processarCSV(csvText);
-          statusEl.textContent = `Base atualizada! (${database.length} registros)`;
-          statusEl.className = 'text-xs text-green-400 mt-2 font-bold';
-          sucesso = true; break; 
-        } catch (e) {}
+      try {
+        const response = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(CSV_URL)}&t=${Date.now()}`);
+        const csvText = await response.text();
+        const lines = csvText.trim().split(/\r?\n/);
+        database = lines.slice(1).map(line => line.split(',').map(v => v.replace(/"/g, '').trim()));
+        document.getElementById('status').textContent = 'Base Online';
+        document.getElementById('status').className = 'text-xs text-green-400 mt-2 font-bold';
+      } catch (e) {
+        document.getElementById('status').textContent = 'Erro na conexão';
       }
-      if (!sucesso) statusEl.textContent = 'Erro ao carregar planilha.';
-    }
-
-    function processarCSV(csvText) {
-      const textoLimpo = csvText.replace(/^\uFEFF/, '').trim();
-      const lines = textoLimpo.split(/\r?\n/);
-      if (lines.length < 2) return;
-      const parseLine = (line) => {
-        const values = []; const regex = /("([^"]|"")*"|[^,]*)(,|$)/g;
-        line.replace(regex, (match, p1) => {
-          let v = p1; if (v.startsWith('"') && v.endsWith('"')) v = v.slice(1, -1).replace(/""/g, '"');
-          values.push(v.trim());
-        });
-        return values;
-      };
-      database = lines.slice(1).map(line => line.trim() ? parseLine(line) : null).filter(Boolean);
-    }
-
-    function mostrarOperacaoDireta(tipo) {
-      const resultsContainer = document.getElementById('results');
-      const destinoSalvo = localStorage.getItem('destino_' + tipo) || 'FÁBRICA';
-      let depFinal = '', endFinal = '', mapFinal = '';
-
-      if (destinoSalvo === 'LUSITANA') {
-        depFinal = 'LUSITANA (CAÇAPAVA)';
-        endFinal = '📍 Rua Vereador Geraldo Nogueira da Silva, 5111 - Caçapava, SP';
-        mapFinal = LINK_MAPS_LUSITANA;
-      } else {
-        depFinal = 'FÁBRICA (JACAREÍ)';
-        endFinal = '📍 Av. Presidente Humberto de Alencar Castelo Branco, 2911 - Jacareí, SP';
-        mapFinal = LINK_MAPS_FABRICA;
-      }
-
-      resultsContainer.innerHTML = `
-        <div class="bg-blue-900/30 border border-blue-500/50 rounded-xl p-5 space-y-4 shadow-xl animate-fade-in-up">
-          <div class="flex justify-between items-start border-b border-blue-500/30 pb-3">
-            <div class="flex-1 pr-4">
-              <div class="text-xs text-blue-300 font-bold uppercase">Operação Direta</div>
-              <div class="text-2xl font-black text-white">${depFinal}</div>
-              <div class="address-box border-blue-500 flex flex-col gap-2">
-                <span class="text-sm text-gray-200">${endFinal}</span>
-                <a href="${mapFinal}" target="_blank" class="inline-flex items-center gap-1.5 text-blue-400 hover:text-blue-300 font-bold text-sm w-fit">
-                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
-                  Abrir no Maps
-                </a>
-              </div>
-            </div>
-            <div class="text-right"><div class="text-xs text-blue-300 font-bold uppercase">DTS</div><div class="text-xl font-bold text-white">---</div></div>
-          </div>
-          <div class="pt-2">
-            <div class="text-xs text-blue-300 uppercase mb-1">Item</div>
-            <div class="font-semibold text-white text-lg">${tipo}</div>
-          </div>
-        </div>`;
     }
 
     function buscarDestino() {
@@ -255,51 +74,46 @@
       const container = document.getElementById('results');
       if (!q) return;
       const res = database.filter(row => row.some(c => c && c.toLowerCase().includes(q)));
+      
       if (res.length === 0) {
-        container.innerHTML = `<div class="p-4 bg-red-900/40 border border-red-500 rounded-xl text-red-200">Não encontrado na planilha.</div>`;
+        container.innerHTML = `<div class="p-4 bg-red-900/40 border border-red-500 rounded-xl text-red-200 uppercase font-bold text-center">Nenhuma DT localizada</div>`;
         return;
       }
-      container.innerHTML = res.map(row => {
-        const dep = (row[6] || '').toUpperCase();
-        let end = '', link = '';
-        if (dep.includes('FÁBRICA') || dep.includes('FABRICA')) { 
-            end = '📍 Av. Presidente Humberto de Alencar Castelo Branco, 2911 - Jacareí'; 
-            link = LINK_MAPS_FABRICA; 
-        }
-        else { 
-            end = '📍 Rua Vereador Geraldo Nogueira da Silva, 5111 - Caçapava'; 
-            link = LINK_MAPS_LUSITANA; 
-        }
 
-        return `<div class="bg-black/40 border border-white/10 rounded-xl p-5 space-y-4 shadow-lg animate-fade-in-up">
+      container.innerHTML = res.map(row => {
+        const local = (row[6] || '').toUpperCase();
+        const isJacarei = local.includes('FÁBRICA') || local.includes('JACAREÍ');
+        const link = isJacarei ? LINK_JACAREI : LINK_CACAPAVA;
+        const endereco = isJacarei ? '📍 Portaria Heineken Jacareí' : '📍 Portaria Lusitana Caçapava';
+
+        return `
+        <div class="bg-black/40 border border-white/10 rounded-xl p-5 space-y-4 animate-fade-in-up">
           <div class="flex justify-between items-start border-b border-white/10 pb-3">
-            <div class="flex-1 pr-4">
-              <div class="text-xs text-gray-400 font-bold uppercase">Local</div>
+            <div>
+              <div class="text-xs text-gray-400 font-bold uppercase">Depósito de Destino</div>
               <div class="text-2xl font-black text-green-400">${row[6]}</div>
               <div class="address-box flex flex-col gap-2">
-                <span class="text-sm text-gray-200">${end}</span>
-                <a href="${link}" target="_blank" class="inline-flex items-center gap-1.5 text-blue-400 hover:text-blue-300 font-bold text-sm w-fit">
-                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg> Abrir no Maps
-                </a>
+                <span class="text-sm text-gray-200">${endereco}</span>
+                <a href="${link}" target="_blank" class="text-blue-400 hover:underline font-bold text-sm">Abrir Localização Exata no Maps</a>
               </div>
             </div>
-            <div class="text-right"><div class="text-xs text-gray-400 font-bold uppercase">DTS</div><div class="text-xl font-bold">${row[0]}</div></div>
+            <div class="text-right">
+              <div class="text-xs text-gray-400 font-bold uppercase">DT</div>
+              <div class="text-xl font-bold">${row[0]}</div>
+            </div>
           </div>
           
-          <div class="grid grid-cols-2 gap-4 pt-2">
-            <div class="col-span-2"><div class="text-xs text-gray-400 uppercase">Cliente</div><div class="font-semibold text-gray-100">${row[2]}</div></div>
-            <div class="col-span-2"><div class="text-xs text-gray-400 uppercase">Descrição</div><div class="font-semibold text-gray-100">${row[4]}</div></div>
-            
-            <div class="col-span-1"><div class="text-xs text-gray-400 uppercase">Quantidade (PLT)</div><div class="font-semibold text-gray-100 text-lg">${row[5]}</div></div>
-            <div class="col-span-1"><div class="text-xs text-gray-400 uppercase">Data Agendamento</div><div class="font-semibold text-gray-100">${row[8]}</div></div>
-            <div class="col-span-2"><div class="text-xs text-gray-400 uppercase">Agenda (Horário)</div><div class="font-semibold text-white text-xl">${row[11]}</div></div>
+          <div class="grid grid-cols-2 gap-4">
+            <div class="col-span-2"><div class="text-xs text-gray-400 uppercase">Cliente</div><div class="font-bold">${row[2]}</div></div>
+            <div class="col-span-1"><div class="text-xs text-gray-400 uppercase">Quantidade</div><div class="text-lg font-bold text-green-300">${row[5]} Paletes</div></div>
+            <div class="col-span-1"><div class="text-xs text-gray-400 uppercase">Data</div><div class="text-lg font-bold">${row[8]}</div></div>
+            <div class="col-span-2 bg-white/5 p-3 rounded-lg"><div class="text-xs text-gray-400 uppercase">Horário de Agenda</div><div class="text-2xl font-black text-white">${row[11]}</div></div>
           </div>
         </div>`;
       }).join('');
     }
 
     document.getElementById('searchBtn').addEventListener('click', buscarDestino);
-    document.getElementById('searchInput').addEventListener('keypress', (e) => { if (e.key === 'Enter') buscarDestino(); });
     window.onload = carregarPlanilha;
   </script>
 </body>
